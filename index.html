@@ -2,8 +2,9 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MF Новорічний Подарунок</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -323,6 +324,18 @@
     </div>
 
     <script>
+        // Telegram WebApp - розгортання на повний екран
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            
+            // Додатково для iOS
+            if (tg.isExpanded === false) {
+                tg.expand();
+            }
+        }
+
         const gifts = [
             { name: "iPhone 15 Pro Max", icon: "📱" },
             { name: "MacBook Pro", icon: "💻" },
