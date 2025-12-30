@@ -346,14 +346,19 @@
             { name: "Робот-пилосос", icon: "🤖" }
         ];
 
-        let giftOpened = false;
+        let wonGift = null;
 
         function openGift() {
-            if (giftOpened) return;
-            giftOpened = true;
-            
             const bunny = document.getElementById('bunny');
-            bunny.style.cursor = 'default';
+            const modal = document.getElementById('modal');
+            
+            if (wonGift) {
+                modal.classList.add('active');
+                return;
+            }
+            
+            wonGift = gifts[Math.floor(Math.random() * gifts.length)];
+            
             bunny.classList.add('shake');
             
             setTimeout(() => {
@@ -367,10 +372,8 @@
             const giftName = document.getElementById('giftName');
             const giftIcon = document.getElementById('giftIcon');
             
-            const randomGift = gifts[Math.floor(Math.random() * gifts.length)];
-            
-            giftIcon.textContent = randomGift.icon;
-            giftName.textContent = randomGift.name;
+            giftIcon.textContent = wonGift.icon;
+            giftName.textContent = wonGift.name;
             
             modal.classList.add('active');
             createConfetti();
