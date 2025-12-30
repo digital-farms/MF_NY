@@ -359,7 +359,15 @@
             { name: "Робот-пилосос", icon: "🤖" }
         ];
 
-        let wonGift = null;
+        const GIFT_VERSION = 1; // Змініть на 2, 3 і т.д. при оновленні списку подарунків
+        const storageKey = 'mf_won_gift_v' + GIFT_VERSION;
+        let wonGift = JSON.parse(localStorage.getItem(storageKey)) || null;
+
+        // Якщо вже є виграш - одразу показати
+        if (wonGift) {
+            document.getElementById('giftIcon').textContent = wonGift.icon;
+            document.getElementById('giftName').textContent = wonGift.name;
+        }
 
         function openGift() {
             const bunny = document.getElementById('bunny');
@@ -371,6 +379,7 @@
             }
             
             wonGift = gifts[Math.floor(Math.random() * gifts.length)];
+            localStorage.setItem(storageKey, JSON.stringify(wonGift));
             
             bunny.classList.add('shake');
             
