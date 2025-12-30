@@ -318,7 +318,6 @@
             <p class="gift-name" id="giftName"></p>
             <div>
                 <button class="close-btn" onclick="closeModal()">Закрити</button>
-                <button class="try-again-btn" onclick="tryAgain()">Ще раз!</button>
             </div>
         </div>
     </div>
@@ -347,8 +346,14 @@
             { name: "Робот-пилосос", icon: "🤖" }
         ];
 
+        let giftOpened = false;
+
         function openGift() {
+            if (giftOpened) return;
+            giftOpened = true;
+            
             const bunny = document.getElementById('bunny');
+            bunny.style.cursor = 'default';
             bunny.classList.add('shake');
             
             setTimeout(() => {
@@ -374,13 +379,6 @@
         function closeModal() {
             const modal = document.getElementById('modal');
             modal.classList.remove('active');
-        }
-
-        function tryAgain() {
-            closeModal();
-            setTimeout(() => {
-                openGift();
-            }, 300);
         }
 
         function createConfetti() {
