@@ -200,7 +200,8 @@
             width: 10px;
             height: 10px;
             top: -10px;
-            z-index: 150;
+            z-index: 400;
+            pointer-events: none;
             animation: fall linear forwards;
         }
 
@@ -216,11 +217,21 @@
             color: white;
             font-size: 20px;
             top: -20px;
-            z-index: 200;
+            z-index: 400;
             pointer-events: none;
             opacity: 0.8;
             animation: snowfall linear infinite;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Falling Logo */
+        .falling-logo {
+            position: fixed;
+            top: -50px;
+            z-index: 400;
+            pointer-events: none;
+            opacity: 0.8;
+            animation: snowfall linear forwards;
         }
 
         @keyframes snowfall {
@@ -532,7 +543,23 @@
             }, 300);
         }
 
+        // Create falling logos
+        function createFallingLogos() {
+            setInterval(() => {
+                const logo = document.createElement('img');
+                logo.src = 'MF_site.png';
+                logo.className = 'falling-logo';
+                logo.style.left = Math.random() * 100 + 'vw';
+                logo.style.width = (Math.random() * 20 + 25) + 'px';
+                logo.style.animationDuration = (Math.random() * 5 + 6) + 's';
+                document.body.appendChild(logo);
+                
+                setTimeout(() => logo.remove(), 12000);
+            }, 2000); // Кожні 2 секунди - рідше ніж сніжинки
+        }
+
         createSnowflakes();
+        createFallingLogos();
     </script>
 </body>
 </html>
