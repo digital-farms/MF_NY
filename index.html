@@ -229,6 +229,44 @@
             }
         }
 
+        /* Video Overlay */
+        .video-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-overlay.active {
+            display: flex;
+        }
+
+        .video-overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay.dimmed video {
+            filter: brightness(0.3);
+        }
+
+        .video-overlay .modal-overlay {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 310;
+        }
+
+        .video-overlay .modal-overlay.active {
+            display: flex;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .logo {
@@ -323,6 +361,22 @@
         </div>
     </div>
 
+    <div class="video-overlay" id="videoOverlay">
+        <video id="giftVideo" playsinline webkit-playsinline>
+            <source src="Video-2025-12-31 at 02.35.58.mp4" type="video/mp4">
+        </video>
+        <div class="modal-overlay" id="videoModal">
+            <div class="modal">
+                <h2>🎄 З Новим Роком! 🎄</h2>
+                <div class="gift-icon" id="videoGiftIcon">🎁</div>
+                <p class="gift-name" id="videoGiftName"></p>
+                <div>
+                    <button class="close-btn" onclick="closeVideoModal()">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Telegram WebApp - розгортання на повний екран
         if (window.Telegram && window.Telegram.WebApp) {
@@ -357,41 +411,81 @@
         const GIFT_VERSION = 3; // Змініть на 2, 3 і т.д. при оновленні списку подарунків
         const storageKey = 'mf_won_gift_v' + GIFT_VERSION;
         let wonGift = JSON.parse(localStorage.getItem(storageKey)) || null;
+        let modalShownAt5s = false;
 
-        // Якщо вже є виграш - одразу показати
+        // Якщо вже є виграш - оновити іконки
         if (wonGift) {
             document.getElementById('giftIcon').textContent = wonGift.icon;
             document.getElementById('giftName').textContent = wonGift.name;
+            document.getElementById('videoGiftIcon').textContent = wonGift.icon;
+            document.getElementById('videoGiftName').textContent = wonGift.name;
         }
 
         function openGift() {
             const bunny = document.getElementById('bunny');
-            const modal = document.getElementById('modal');
             
+            // Якщо вже виграв - показати відео з призом
             if (wonGift) {
-                modal.classList.add('active');
+                playVideo();
                 return;
             }
             
+            // Перший раз - генеруємо приз
             wonGift = gifts[Math.floor(Math.random() * gifts.length)];
             localStorage.setItem(storageKey, JSON.stringify(wonGift));
+            
+            // Оновлюємо іконки
+            document.getElementById('giftIcon').textContent = wonGift.icon;
+            document.getElementById('giftName').textContent = wonGift.name;
+            document.getElementById('videoGiftIcon').textContent = wonGift.icon;
+            document.getElementById('videoGiftName').textContent = wonGift.name;
             
             bunny.classList.add('shake');
             
             setTimeout(() => {
                 bunny.classList.remove('shake');
-                showModal();
+                playVideo();
             }, 500);
+        }
+
+        function playVideo() {
+            const videoOverlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('giftVideo');
+            const videoModal = document.getElementById('videoModal');
+            
+            modalShownAt5s = false;
+            videoOverlay.classList.add('active');
+            videoOverlay.classList.remove('dimmed');
+            videoModal.classList.remove('active');
+            
+            video.currentTime = 0;
+            video.play();
+            
+            // Слухаємо час відео
+            video.ontimeupdate = function() {
+                if (video.currentTime >= 5 && !modalShownAt5s) {
+                    modalShownAt5s = true;
+                    video.pause();
+                    videoOverlay.classList.add('dimmed');
+                    videoModal.classList.add('active');
+                    createConfetti();
+                }
+            };
+        }
+
+        function closeVideoModal() {
+            const videoOverlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('giftVideo');
+            const videoModal = document.getElementById('videoModal');
+            
+            videoModal.classList.remove('active');
+            videoOverlay.classList.remove('active');
+            videoOverlay.classList.remove('dimmed');
+            video.pause();
         }
 
         function showModal() {
             const modal = document.getElementById('modal');
-            const giftName = document.getElementById('giftName');
-            const giftIcon = document.getElementById('giftIcon');
-            
-            giftIcon.textContent = wonGift.icon;
-            giftName.textContent = wonGift.name;
-            
             modal.classList.add('active');
             createConfetti();
         }
