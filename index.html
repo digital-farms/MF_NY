@@ -476,18 +476,82 @@
             videoModal.classList.remove('active');
             
             video.currentTime = 0;
+            video.volume = 1; // Відновлюємо гучність
             video.play();
             
             // Слухаємо час відео
             video.ontimeupdate = function() {
                 if (video.currentTime >= 5 && !modalShownAt5s) {
                     modalShownAt5s = true;
-                    video.pause();
-                    videoOverlay.classList.add('dimmed');
-                    videoModal.classList.add('active');
-                    createConfetti();
+                    
+                    // Плавне затухання звуку відео
+                    fadeOutVideo(video, function() {
+                        video.pause();
+                        videoOverlay.classList.add('dimmed');
+                        videoModal.classList.add('active');
+                        playWinSound();
+                        createConfetti();
+                    });
                 }
             };
+        }
+
+        // Плавне затухання звуку відео
+        function fadeOutVideo(video, callback) {
+            let volume = video.volume;
+            const fadeInterval = setInterval(() => {
+                volume -= 0.1;
+                if (volume <= 0) {
+                    video.volume = 0;
+                    clearInterval(fadeInterval);
+                    if (callback) callback();
+                } else {
+                    video.volume = volume;
+                }
+            }, 50);
+        }
+
+        // Звук виграшу через Web Audio API
+        function playWinSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Створюємо святковий звук "та-да!"
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            
+            notes.forEach((freq, i) => {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+                
+                const startTime = audioCtx.currentTime + i * 0.15;
+                const duration = 0.4;
+                
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+            });
+            
+            // Додатковий "дзвіночок" в кінці
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = 1318.51; // E6
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            }, 600);
         }
 
         function closeVideoModal() {
