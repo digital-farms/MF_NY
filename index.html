@@ -231,7 +231,13 @@
             z-index: 400;
             pointer-events: none;
             opacity: 0.8;
-            animation: snowfall linear forwards;
+            animation: logofall linear forwards;
+        }
+
+        @keyframes logofall {
+            to {
+                transform: translateY(calc(100vh + 100px)) rotate(360deg);
+            }
         }
 
         @keyframes snowfall {
